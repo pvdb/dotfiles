@@ -92,6 +92,10 @@ POWERLEVEL9K_MODE="awesome-patched"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git)
 
+# https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md
+# plugins=($plugins zsh-syntax-highlighting)
+[[ ! -f ~/.syntax.zsh ]] || source ~/.syntax.zsh
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
