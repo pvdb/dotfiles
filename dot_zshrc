@@ -84,6 +84,9 @@ plugins=(git)
 # https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/brew
 plugins=(brew $plugins)
 
+# https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/fzf
+plugins=(fzf $plugins)
+
 # https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/vi-mode
 plugins=(vi-mode $plugins)
 
