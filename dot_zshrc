@@ -92,6 +92,9 @@ POWERLEVEL9K_MODE="awesome-patched"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git)
 
+# https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/brew
+plugins=(brew $plugins)
+
 # https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/vi-mode
 plugins=(vi-mode $plugins)
 
