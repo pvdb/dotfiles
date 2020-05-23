@@ -100,6 +100,8 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
+[[ ! -f ~/.zsh_pvdb ]] || source ~/.zsh_pvdb
+
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
