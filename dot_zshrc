@@ -110,6 +110,7 @@ plugins=($plugins zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
+[[ ! -f ~/.zsh_pvdb ]] || source ~/.zsh_pvdb
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
