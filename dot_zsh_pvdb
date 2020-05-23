@@ -1,0 +1,253 @@
+#
+# ZSH history config
+#
+setopt    EXTENDED_HISTORY
+setopt    HIST_IGNORE_ALL_DUPS
+setopt    HIST_IGNORE_DUPS
+setopt    HIST_IGNORE_SPACE
+setopt    HIST_NO_STORE
+setopt    HIST_REDUCE_BLANKS
+setopt    HIST_VERIFY
+
+#
+# some general-purpose predicates and other
+# utility functions;  they're temporary and
+# will be unfunctioned at the end of script
+#
+
+function _ssh_session() {
+  [[ -n "${SSH_CLIENT}" ]] ;
+}
+
+function _on_darwin() {
+  # [[ $(uname -s) == 'Darwin' ]] ;
+  [[ "$OSTYPE" = darwin* ]] ;
+}
+
+function _homebrew_installed() {
+  # brew --version &> /dev/null ;
+  type brew &> /dev/null ;
+}
+
+function _rbenv_installed() {
+  type rbenv &> /dev/null ;
+}
+
+function _app_installed() {
+  local app_name=$1 ; # TODO max one argument? don't hardcode '/Applications'?
+  [[ -d /Applications/${app_name} ]] || [[ -d /Applications/${app_name}.app ]] ;
+}
+
+function _source_if_exists() {
+  local file ;
+  for file ; do
+    [ -f "${file}" ] && source "${file}" ;
+  done
+}
+
+function _cellar_location() {
+  local package_name=$1 ; # TODO max one argument? also why can't `brew` do this?
+  brew info "${package_name}" | egrep "^$(brew --prefix)" | cut -d ' ' -f 1 ;
+}
+
+function() {
+
+  # export ZSH_CUSTOM so that other scripts don't have to make assumptions
+  export ZSH_CUSTOM ;
+
+  # override the default value for ${PROJECTS_HOME}
+  # (note: the default value is "${HOME}/projects")
+  export PROJECTS_HOME="${HOME}/Workarea" ;
+  alias cdp="cd ${PROJECTS_HOME}" ;
+
+  # some key bindings missing from `vi-mode.plugin.zsh`
+  bindkey -M viins '\e.' insert-last-word ;
+
+  if _on_darwin ; then
+
+    # https://github.com/morhetz/gruvbox
+    _source_if_exists "${HOME}/.vim/bundle/gruvbox/gruvbox_256palette_osx.sh"
+
+    # unlock keychains if SSH-ing into this machine
+    if _ssh_session ; then
+      local pvdb_keychain=$( security list-keychains | fgrep pvdb.keychain | sed -e 's/^ *"\(.*\)".*$/\1/' ) ;
+      [ -n "${pvdb_keychain}" ] && security unlock-keychain "${pvdb_keychain}" ;
+    fi
+
+    if _homebrew_installed ; then
+
+      local brew_prefix="$(brew --prefix)" ;
+
+      # activate and configure cdargs completion and utilities
+      _source_if_exists "${brew_prefix}/etc/bash_completion.d/cdargs-bash.sh" ;
+
+      # run "brew info zsh" for more info...
+      HELPDIR="${brew_prefix}/share/zsh/help" ;
+
+      unalias run-help ;
+      autoload -Uz run-help ;
+
+    fi
+
+    if _rbenv_installed ; then
+      eval "$(rbenv init --no-rehash - zsh)" ;
+    fi
+
+    # override the `opendiff` command-line tool,
+    # as it depends on FileMerge being installed
+    if _app_installed P4Merge.app ; then
+      alias opendiff='/Applications/P4Merge.app/Contents/MacOS/p4merge' ;
+    fi
+
+    # override the `opendiff` command-line tool,
+    # as it depends on FileMerge being installed
+    if _app_installed "Visual Studio Code.app" ; then
+      alias opendiff='/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code -d' ;
+    fi
+
+    # explicitly set ${VIM_APP_DIR} to prevent `mvim`
+    # from scanning a whole bunch of nonsensical dirs
+    if _app_installed MacVim.app ; then
+      export VIM_APP_DIR='/Applications' ;
+    fi
+
+    # enable iTerm2 shell integration
+    # https://www.iterm2.com/documentation-shell-integration.html
+    if _app_installed iTerm.app ; then
+      test -e "${HOME}/.iterm2_shell_integration.zsh" && {
+        source "${HOME}/.iterm2_shell_integration.zsh"
+      }
+    fi
+
+  fi
+}
+
+# I'm not overly impressed by the built-in colored-man plugin for oh-my-zsh, which can be found at
+# https://github.com/robbyrussell/oh-my-zsh/blob/master/plugins/colored-man/colored-man.plugin.zsh
+# so I wrote my own one (based on https://wiki.archlinux.org/index.php/Man_page#Colored_man_pages)
+function man() {
+  env \
+    LESS_TERMCAP_mb=$'\E[01;31m' \
+    LESS_TERMCAP_md=$'\E[01;38;5;74m' \
+    LESS_TERMCAP_me=$'\E[0m' \
+    LESS_TERMCAP_se=$'\E[0m' \
+    LESS_TERMCAP_so=$'\E[38;5;246m' \
+    LESS_TERMCAP_ue=$'\E[0m' \
+    LESS_TERMCAP_us=$'\E[04;38;5;146m' \
+    PAGER=/usr/bin/less \
+    _NROFF_U=1 \
+  man "$@" ;
+}
+
+#
+# the "ghs" alias converts clone URLs for repos:
+#
+#   git@github.com:pvdb/git-multi.git
+#   https://github.com/pvdb/git-multi.git
+#
+# into:
+#
+#   https://github.com/pvdb/git-multi
+#
+# and clone URLs for gists:
+#
+#   git@gist.github.com:219ff69fdc2ee26dba1b45addaa9b96d.git
+#   https://gist.github.com/219ff69fdc2ee26dba1b45addaa9b96d.git
+#
+# into:
+#
+#   https://gist.github.com/219ff69fdc2ee26dba1b45addaa9b96d
+#
+# relevant git documentation:
+#
+#   https://www.git-scm.com/docs/git-clone#_git_urls
+#
+# test as follows:
+#
+#   ghs <<<"git@github.com:pvdb/git-multi.git"
+#   ghs <<<"https://github.com/pvdb/git-multi.git"
+#
+#   ghs <<<"git@gist.github.com:219ff69fdc2ee26dba1b45addaa9b96d.git"
+#   ghs <<<"https://gist.github.com/219ff69fdc2ee26dba1b45addaa9b96d.git"
+#
+
+alias ghs="sed -E -e 's#^(git@|git://|https://)((gist\.)?github\.com)([/:])(([^/]*/[^/]*)|([0-9a-f]*))(\.git)\$#https://\2/\5#'";
+alias ghu='git config --local --get remote.origin.url | ghs'
+
+alias tgs='(local sha ; sha=$(pbpaste | tr -d '\n') ; echo ${sha} | cut -c 1-7 | pbcopy)'
+
+alias ghr='git rev-parse --show-toplevel &> /dev/null && git-hub --repo'
+alias ghh='git rev-parse --show-toplevel &> /dev/null && git-hub --head'
+alias ghf='git rev-parse --show-toplevel &> /dev/null && git-hub --blob'
+alias ghb='git rev-parse --show-toplevel &> /dev/null && git-hub --branch'
+
+alias ghp='git rev-parse --show-toplevel &> /dev/null && git-hub --pr "$(pbpaste)"'
+alias ght='git rev-parse --show-toplevel &> /dev/null && git-hub --tree "$(pbpaste)"'
+alias ghc='git rev-parse --show-toplevel &> /dev/null && git-hub --commit "$(pbpaste)"'
+
+# "bundle exec" shortcuts
+alias bx='bundle exec'
+alias bxc='bundle exec cap'
+alias bxp='bundle exec pry'
+alias bxr='bundle exec rake'
+
+# https://www.iterm2.com/documentation-escape-codes.html
+alias clearsb='print "^[]1337;ClearScrollback^G"'
+
+# replace "standard" utilities with "improved" alternatives
+alias lc='wc -l'
+alias ls='exa'
+alias cat='bat'
+alias pidof='pgrep -x' ;
+alias locate='mdfind -name' ;
+alias unsort='sort | uniq -c | sort -nr' ;
+
+pecho() {
+  local arg ;
+  for arg ; do
+    echo "${arg}" | tr ':;' '\n\n' ;
+  done
+}
+
+qlook() {
+  local file ;
+  for file ; do
+    qlmanage -p "${file}" &> /dev/null ;
+  done
+}
+
+# vim trumps emacs, y'all!
+export EDITOR="vim"
+
+# https://relentlesscoding.com/2019/01/06/make-less-options-permanent-or-the-missing-lessrc/
+export LESS="IFRSX"
+
+# I likes me some pretty colors!
+export RI="-f ansi"
+export PAGER="less -R"
+
+# key bindings
+function fg_function { fg ; }
+zle -N fg_widget fg_function ;
+bindkey '^z' fg_widget ;
+
+# some iTerm2 fun
+function fireworks_function { ${HOME}/.iterm2/it2attention fireworks }
+zle -N fireworks_widget fireworks_function ;
+bindkey '^f' fireworks_widget ;
+
+#
+# unset predicates &
+# utility functions!
+#
+
+unfunction _cellar_location ;
+unfunction _source_if_exists ;
+
+unfunction _app_installed ;
+unfunction _rbenv_installed ;
+unfunction _homebrew_installed ;
+unfunction _on_darwin ;
+unfunction _ssh_session ;
+
+# That's all Folks!

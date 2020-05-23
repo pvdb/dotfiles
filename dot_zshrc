@@ -112,6 +112,7 @@ plugins=(ssh-agent $plugins)
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
+[[ ! -f ~/.zsh_pvdb ]] || source ~/.zsh_pvdb
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
