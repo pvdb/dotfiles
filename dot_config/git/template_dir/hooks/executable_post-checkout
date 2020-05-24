@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+
+#
+# a generic template script for a git post-checkout hook, as documented here:
+# http://www.kernel.org/pub/software/scm/git/docs/githooks.html#_post_checkout
+#
+# it distinguishes between file and branch checkouts, and the custom actions
+# for each can be added to the __post_file_checkout and __post_branch_checkout
+# functions respectively.
+#
+# it includes an example of a post-branch checkout hook that
+# updates all submodules of a repo, after switching branches
+#
+
+# --- Parse command line
+previous_head="$1" ;
+new_head="$2" ;
+file_or_branch_checkout="$3" ;
+
+# --- Verify command line
+[ -n "$previous_head" -a -n "$new_head" -a -n "$file_or_branch_checkout" ] || {
+	echo "Usage: $0 <previous_head> <new_head> <file_or_branch_checkout>" >&2 ;
+	exit 1 ;
+}
+
+# --- Some debugging
+__debug_post_checkout() {
+	echo "GIT_DIR: ${GIT_DIR}" ;
+	echo "Previous head: ${previous_head}" ;
+	echo "New head: ${new_head}" ;
+	echo "Checkout (file = 0, branch = 1): ${file_or_branch_checkout}" ;
+}
+
+# --- Post-file checkout actions
+__post_file_checkout() {
+	# REPLACE WITH CUSTOM ACTIONS...
+	true ;
+}
+
+# --- Post-branch checkout actions
+__post_branch_checkout() {
+	# REPLACE WITH CUSTOM ACTIONS...
+	[ ${new_head} != ${previous_head} ] && {
+		# echo "Running 'git submodule update' from $(basename $0) hook..." ;
+		git submodule update ;
+	} || true ;
+}
+
+# --- Determine type of checkout
+case "${file_or_branch_checkout}" in
+	"0" ) __post_file_checkout ;;
+	"1" ) __post_branch_checkout ;;
+	* )
+		echo "Unsupported checkout flag (should be 0 or 1): ${file_or_branch_checkout}" >&2 ;
+		exit 1 ;
+	;;
+esac
+
+# http://tbaggery.com/2011/08/08/effortless-ctags-with-git.html
+git ctags > /dev/null 2>&1 &
+
+# That's all Folks!!
