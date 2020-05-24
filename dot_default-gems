@@ -1,0 +1,7 @@
+bundler
+pry
+pry-doc
+pry-rescue
+pry-stack_explorer
+rb-readline
+semantic
