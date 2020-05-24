@@ -1,0 +1,226 @@
+" vimrc_example.vim
+"
+" See also:
+"
+" http://www.vi-improved.org/vimrc.php
+" http://www.eseth.org/filez/prefs/vimrc
+" http://weblog.jamisbuck.org/2008/11/17/vim-follow-up#article_body
+"
+
+set nocompatible
+
+" :help clipboard
+set clipboard=unnamed
+
+" https://github.com/tpope/vim-fugitive/issues/589
+set diffopt=vertical,filler
+
+" https://github.com/tpope/vim-pathogen
+" execute pathogen#infect()
+
+" TODO: what? where from?
+filetype plugin indent on
+
+" vimrc_example.vim
+if has('mouse')
+  set mouse=a
+endif
+
+" http://statico.github.io/vim.html
+if $TERM == "xterm-256color" || $TERM == "screen-256color" || $COLORTERM == "gnome-terminal"
+  set t_Co=256
+endif
+
+" https://github.com/junegunn/limelight.vim#options
+let g:limelight_conceal_ctermfg = 'DarkGray'
+" let g:limelight_conceal_ctermfg = 240
+let g:limelight_conceal_guifg = 'DarkGray'
+" let g:limelight_conceal_guifg = '#777777'
+let g:limelight_default_coefficient = 0.3
+
+" https://github.com/junegunn/limelight.vim#goyovim-integration
+autocmd! User GoyoEnter Limelight
+autocmd! User GoyoLeave Limelight!
+
+" vimrc_example.vim
+if &t_Co > 2 || has("gui_running")
+  syntax on
+
+  " Mastering Vim Quickly #207
+  set hlsearch   "Highlights search terms
+  set incsearch  "Highlights search terms as you type them
+  set ignorecase "Ignores case when searching
+  set smartcase  "Override the previous config (ignorecase) if search pattern contains upper case characters
+  set showmatch  "Highlights matching parentheses
+endif
+
+" :help setting-guifont
+if has('gui_running')
+  set macligatures
+  " set guifont=Sauce\ Code\ Powerline:h18
+  set guifont=FiraCode_Nerd_Font:h16
+endif
+
+" :help tildeop
+set tildeop
+
+" https://stackoverflow.com/questions/1764263/what-is-the-leader-in-a-vimrc-file
+set showcmd
+
+" https://github.com/morhetz/gruvbox
+set background=dark
+" colorscheme gruvbox
+autocmd vimenter * ++nested colorscheme gruvbox
+" highlight Comment cterm=italic
+
+" https://github.com/junegunn/seoul256.vim#color-schemes
+" colorscheme seoul256
+
+" https://github.com/bling/vim-airline#integrating-with-powerline-fonts
+let g:airline_powerline_fonts = 1
+
+" https://github.com/vim-airline/vim-airline/blob/master/doc/airline.txt
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+let g:airline#extensions#tabline#fnamecollapse = 0
+
+" http://kien.github.io/ctrlp.vim/
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files']
+
+" https://github.com/vim-ruby/vim-ruby/issues/234
+autocmd FileType ruby setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType javascript setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
+
+" http://vim.wikia.com/wiki/editing_crontab
+autocmd FileType crontab setlocal nobackup nowritebackup
+
+" http://vim.wikia.com/wiki/Forcing_Syntax_Coloring_for_files_with_odd_extensions
+au! BufRead,BufNewFile *.wfm set filetype=ruby
+au! BufRead,BufNewFile *.cron set filetype=crontab
+au! BufRead,BufNewFile *.crontab set filetype=crontab
+au! BufRead,BufNewFile *.drawio set filetype=xml
+au! BufRead,BufNewFile */jsonschema/* set syntax=json
+au! BufRead,BufNewFile Jenkinsfile* set syntax=groovy
+
+" https://danielmiessler.com/study/vim/
+inoremap jk <ESC>
+
+" http://jeffkreeftmeijer.com/2012/relative-line-numbers-in-vim-for-super-fast-movement/
+set relativenumber
+set number
+
+" some random settings
+set visualbell
+set colorcolumn=78
+set modelines=5 " on Darwin, certain versions of vim have modelines=0 : /usr/share/vim/vimrc
+
+" http://vim.wikia.com/wiki/Indenting_source_code
+" set smartindent
+" set expandtab
+" set shiftwidth=2
+" set softtabstop=2
+
+" https://danielmiessler.com/study/vim/
+let mapleader = "\<Space>"
+
+" http://www.bestofvim.com/tip/switch-off-current-search/
+nnoremap <silent> <Leader>/ :nohlsearch<CR>
+nnoremap <silent> <Leader><Leader> :nohlsearch<CR>
+
+" http://compdottech.blogspot.co.uk/2008/06/vim-ignoring-white-spaces-in-vimdiff.html
+set diffopt+=iwhite
+
+" https://github.com/statico/dotfiles/blob/master/.vim/vimrc#L46-L47
+" nmap <C-e> :e#<CR>
+
+" stuff: write file
+xmap <Leader>w :w<CR>
+
+" https://github.com/junegunn/vim-easy-align
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" https://github.com/junegunn/vim-easy-align
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
+" http://vim.wikia.com/wiki/Pasting_code_with_syntax_coloring_in_emails
+function! TOrtf(line1, line2)
+
+  " convert selection to HTML
+  exec a:line1.','.a:line2.'TOhtml'
+
+  " copy generated HTML to clipboard
+  %y+
+
+  " get current `warn`/`nowarn` setting
+  let warn_option=&warn
+
+  " suppress '[No write since last change]' warning
+  set nowarn
+
+  " replace HTML on clipboard to RTF
+  !pbpaste | textutil -stdin -stdout -convert rtf | pbcopy
+
+  " force-quite the temporary buffer
+  q!
+
+  " set things back to the way they where...
+  if warn_option
+    set warn   " if &warn was 1 ("warn")
+  else
+    set nowarn " if &warn was 0 ("nowarn")
+  endif
+
+endfunction
+
+" define the corresponding command
+command! -range=% TOrtf :call TOrtf(<line1>,<line2>)
+
+" https://github.com/pry/pry/wiki/pry-de#what-we-have
+iabbrev rbp       require 'pry' ; STDIN.reopen('/dev/tty') ; STDOUT.reopen('/dev/tty') ; binding.pry
+nmap <Leader>rbp irequire 'pry' ; STDIN.reopen('/dev/tty') ; STDOUT.reopen('/dev/tty') ; binding.pry
+
+iabbrev rsb       #!/usr/bin/env ruby<CR><CR><CR><CR># That's all Folks!<Up><Up>
+nmap <Leader>rsb i#!/usr/bin/env ruby<CR><CR><CR><CR># That's all Folks!<Up><Up>
+
+iabbrev bsb       #!/usr/bin/env bash<CR><CR><CR><CR># That's all Folks!<Up><Up>
+nmap <Leader>bsb i#!/usr/bin/env bash<CR><CR><CR><CR># That's all Folks!<Up><Up>
+
+" allow project-specific `.vimrc` configuration
+set exrc
+set secure
+
+" Trigger `autoread` when files changes on disk
+" https://unix.stackexchange.com/questions/149209/refresh-changed-content-of-file-opened-in-vim/383044#383044
+" https://vi.stackexchange.com/questions/13692/prevent-focusgained-autocmd-running-in-command-line-editing-mode
+" autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
+
+" Notification after file change
+" https://vi.stackexchange.com/questions/13091/autocmd-event-for-autoread
+" autocmd FileChangedShellPost * echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
+
+" stuff: Ruby quotes
+xmap <Leader>q :s/"/'/g<CR>
+
+" stuff: Ruby hash keys
+xmap <Leader>k :s/:\([^ ]*\)  *=> */\1: /g<CR>
+
+" stuff: Ruby def params
+xmap <Leader>p :s/\(def  *[^ ]\+\)  *\(.*\)$/\1(\2)/<CR>
+
+" stuff: Ruby hash params
+xmap <Leader>h :s/:\([^ ]\+\) => /\1: /g<CR>
+
+" https://jesseleite.com/posts/2/its-dangerous-to-vim-alone-take-fzf
+set rtp+=/opt/homebrew/opt/fzf
+
+nmap <Leader>f :GFiles<CR>
+nmap <Leader>F :Files<CR>
+nmap <Leader>b :Buffers<CR>
+nmap <Leader>h :History<CR>
+nmap <Leader>t :BTags<CR>
+nmap <Leader>T :Tags<CR>
+nmap <Leader>H :Helptags<CR>
+
+" That's all, Folks!
