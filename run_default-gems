@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+cp ${HOME}/.default-gems $(rbenv root)/default-gems ;
+
+# That's all Folks!
