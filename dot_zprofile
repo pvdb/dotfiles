@@ -1,0 +1,7 @@
+# Set PATH, MANPATH, etc., for Homebrew.
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Replace system `zsh` with latest version
+# brew install zsh
+# sudo dscl . -change /Users/$USER UserShell $( dscl . -read /Users/$USER UserShell | cut -d ' ' -f 2 ) $(brew --prefix)/bin/zsh
+
