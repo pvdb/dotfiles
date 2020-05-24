@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+# http://tbaggery.com/2011/08/08/effortless-ctags-with-git.html
+git ctags > /dev/null 2>&1 &
+
+# That's all Folks!!

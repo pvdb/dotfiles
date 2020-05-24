@@ -1,0 +1,59 @@
+[core]
+	attributesfile = ~/.config/git/attributes
+	excludesfile = ~/.config/git/ignore
+	quotePath = false
+[init]
+	templatedir = ~/.config/git/template_dir
+[push]
+	default = simple
+[color]
+	ui = auto
+[pager]
+	log = /opt/homebrew/share/git-core/contrib/diff-highlight/diff-highlight | less -R
+	show = /opt/homebrew/share/git-core/contrib/diff-highlight/diff-highlight | less -R
+	diff = /opt/homebrew/share/git-core/contrib/diff-highlight/diff-highlight | less -R
+[diff "gpg"]
+	textconv = gpg --quiet --no-tty --decrypt
+[diff "bnwsec"]
+	textconv = bnw_secrets get --detect-profile
+[alias]
+	sb = status --short --branch
+	ss = status --short
+	st = status
+	br = branch
+	ls = ls-files
+	wc = whatchanged
+	co = checkout
+	co- = checkout -
+	type = cat-file -t
+	dump = cat-file -p
+	wdiff = diff --word-diff
+	fixup = commit --fixup
+	amend = commit --amend --no-edit
+	unstage = reset HEAD --
+[alias]
+	bls = branch--list--stray
+	bds = branch--delete--stray
+	blr = branch--list--recent
+[alias]
+	acv = "!git add -p ; git commit -v"
+	aav = "!git add -p ; git commit --amend -v"
+[alias]
+	pho = push -u origin HEAD
+	fff = "!git fetch -p; git merge -q --ff-only @{u} # "
+	incoming = log --oneline HEAD..@{u}
+	outgoing = log --oneline @{u}..HEAD
+[alias]
+	last = log -n 1 HEAD
+	hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+	graph = log --oneline --graph --date=short --full-history --all --decorate
+	timeline = log --merges --first-parent
+	wip = for-each-ref --format="%(refname:short)" --no-contains=master "refs/heads/*"
+[alias]
+	contributors = shortlog --summary --numbered
+	experts = "!git contributors | head -n 3"
+[alias]
+	com = "!for branch in main master; do git show-ref --verify --quiet \"refs/heads/${branch}\" && git switch --quiet \"${branch}\" && break; done"
+	rsc = "!for file in $( git ls-files '*.rb' ) ; do ruby -W2 -c $file > /dev/null ; done # "
+	swansong = "!git --no-pager log -1 --author $( git config --get user.email )"
+	standup = "!git --no-pager log --since \"$( [ $( date +%u ) = 1 ] && echo '3 days ago' || echo 'yesterday' )\" --all --abbrev-commit --no-merges --oneline --committer \"$( git config --get user.name )\" --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"

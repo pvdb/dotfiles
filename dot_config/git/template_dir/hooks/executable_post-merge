@@ -1,0 +1,58 @@
+#!/usr/bin/env sh
+
+#
+# a generic template script for a git post-merge hook, as documented here:
+# http://www.kernel.org/pub/software/scm/git/docs/githooks.html#_post_merge
+#
+# it distinguishes between "un-squashed" (ie. regular) and squashed merges
+# and the custom actions for each can be added to the __post_regular_merge
+# and __post_squash_merge functions respectively.
+#
+# it includes an example of a post-regular merge hook that
+# updates all submodules of a repo, after merging a branch
+#
+
+# --- Parse command line
+squash_merge="$1" ;
+
+# --- Verify command line
+[ -n "${squash_merge}" ] || {
+	echo "Usage: $0 <squash_merge>" >&2 ;
+	exit 1 ;
+}
+
+# --- Some debugging
+__debug_post_merge() {
+	echo "GIT_DIR: ${GIT_DIR}" ;
+	echo "Merge (regular = 0, squash = 1): ${squash_merge}" ;
+}
+
+# --- Post-squash merge actions
+__post_squash_merge() {
+	# REPLACE WITH CUSTOM ACTIONS...
+	true ;
+}
+
+# --- Post-regular merge actions
+__post_regular_merge() {
+	# REPLACE WITH CUSTOM ACTIONS...
+	{
+		# echo "Running 'git submodule update' from $(basename $0) hook..." ;
+		git submodule update ;
+	} || true ;
+}
+
+# --- Determine type of merge
+case "${squash_merge}" in
+	"0" ) __post_regular_merge ;;
+	"1" ) __post_squash_merge ;;
+	* )
+		echo "Unsupported merge flag (should be 0 or 1): ${squash_merge}" >&2 ;
+		exit 1 ;
+	;;
+esac
+
+# http://tbaggery.com/2011/08/08/effortless-ctags-with-git.html
+git ctags > /dev/null 2>&1 &
+
+# That's all Folks!!
