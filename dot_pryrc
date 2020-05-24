@@ -1,0 +1,44 @@
+# vim:syntax=ruby
+
+if Gem::Version.new(Pry::VERSION) >= Gem::Version.new('0.13.0')
+  class Pry
+    class Prompt
+      wait_proc, incomplete_proc = *@prompts['default'].prompt_procs
+
+      @prompts['dim'] = new(
+        'dim',
+        'dim (via ANSI) pry\'s `default` prompt',
+        [
+          proc { |context, nesting, pry_instance|
+            "\e[2m#{wait_proc.call(context, nesting, pry_instance)}\e[0m"
+          },
+          proc { |context, nesting, pry_instance|
+            "\e[2m#{incomplete_proc.call(context, nesting, pry_instance)}\e[0m"
+          },
+        ]
+      )
+    end
+  end
+
+  # set preferred prompt
+  Pry.config.prompt = Pry::Prompt[:dim]
+end
+
+require 'mkmf'
+
+if MakeMakefile.find_executable0('fzf')
+  begin
+    require 'rb-readline'
+    require 'readline'
+
+    if defined?(RbReadline)
+      def RbReadline.rl_reverse_search_history(sign, key)
+        rl_insert_text  `cat ~/.pry_history | fzf --height=33% --tac`.strip
+      end
+    end
+  rescue LoadError
+    # noop
+  end
+end
+
+# That's all Folks!
