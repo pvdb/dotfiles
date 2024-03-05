@@ -137,3 +137,19 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# Done. iTerm2 shell integration was installed!
+#
+# A script was installed to /Users/peter.vandenberk/.iterm2_shell_integration.zsh
+#
+# Utilities were installed to /Users/peter.vandenberk/.iterm2.
+#
+# You don't need to modify your PATH because
+# /Users/peter.vandenberk/.iterm2_shell_integration.zsh includes aliases for them.
+#
+# To make it work right now, do:
+#   source /Users/peter.vandenberk/.iterm2_shell_integration.zsh
+#
+# This line was also added to /Users/peter.vandenberk/.zshrc,
+# so the next time you log in it will be loaded automatically.
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
