@@ -1,0 +1,9 @@
+# vim:syntax=ruby
+
+def repl_for &block
+  while string = gets
+    puts yield string.chomp
+  end
+end
+
+# That's all Folks!
